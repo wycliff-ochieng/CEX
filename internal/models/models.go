@@ -26,28 +26,40 @@ func (s Side) String() string {
 	return "SELL"
 }
 
+type OrderType int
+
+const (
+	OrderTypeLimit OrderType = iota
+	OrderTypeMarket
+)
+
+func (t OrderType) String() string {
+	if t == OrderTypeMarket {
+		return "MARKET"
+	}
+	return "LIMIT"
+}
+
 type Order struct {
 	ID        uint64    `json:"id"`
 	ClientId  uint64    `json:"client_id"`
 	Symbol    string    `json:"symbol"`
 	Side      Side      `json:"side"`
+	Type      OrderType `json:"type"`
 	Price     uint64    `json:"price"`
 	Quantity  uint64    `json:"quantity"`
 	Timestamp time.Time `json:"timestamp"`
 }
 
-// Trade reps an execution match between buyer and seller
-// BuyOrder and SellOrder vs MakerOrder and TakerOrder
-// MakerOrder and TakerOrder -> describe how order interact with the order book
-// BuyOrder and SellOrder -> Basically describes what the trader wants
-// BuyerOrderID -> who bought, SellerOrderID -> who sold MakerOrderId->identifies whose order was a
-// already resting in the order book, TakerOrderID -> who arrived later and matched the order
+// Trade reps an execution match between buyer and seller.
+// MakerOrder and TakerOrder describe how the orders interact with the book:
+// the maker was already resting when the taker arrived and matched it.
+// Trades carry no wall-clock timestamp on purpose: ordering is derived from
+// the event's sequence number, so the engine never reads the clock (which
+// would break determinism — see lesson 5).
 type Trade struct {
-	BuyOrderID   uint64 `json:"buyorderid"`
-	SellOrderID  uint64 `json:"sellorderid"`
 	MakerOrderID uint64
 	TakerOrderID uint64
 	Price        uint64
 	Quantity     uint64
-	Timestamp    time.Time
 }
