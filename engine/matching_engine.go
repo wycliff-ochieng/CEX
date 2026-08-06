@@ -56,3 +56,8 @@ func NewOrderBook() *OrderBook {
 		Asks: make([]*Order, 0),
 	}
 }
+
+
+func(ob *OrderBook) SubmitOrder(order *Order) {
+	
+}
